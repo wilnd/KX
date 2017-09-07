@@ -1,0 +1,195 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Car Search</title>
+<link  rel="stylesheet" src="../jsclient/baseCss/bootstrap.css"/>
+<script type="text/javascript" src="../jsclient/jquery.js"></script>
+<script type="text/javascript" src="../jsclient/bootstrap.min.js"></script>
+
+<style type="text/css">
+	a{text-decoration: none;}
+	li{list-style-type: none;}
+	.pager li{float: left;}
+	.next{float: right !important;}
+	.pager-div{width:60%;margin: auto;}
+	.center{text-align: center;}
+	.tableCenter{border-collapse: collapse; border-spacing:1px;width: 60%;margin: auto;}
+	.cur_text{cursor: text}
+</style>
+<script type="text/javascript">
+	$(function(){
+	
+	String.prototype.format=function()  
+	{  
+	  if(arguments.length==0) return this;  
+	  for(var s=this, i=0; i<arguments.length; i++)  
+	    s=s.replace(new RegExp("\\{"+i+"\\}","g"), arguments[i]);  
+	  return s;  
+	};
+		$(".pager-div").hide();
+		$(document).keydown(function(event){ 
+			if(event.keyCode == 13){
+				infomation();
+			}
+		})
+		
+		
+	})
+	function infomation(){
+		var simNum=$('[name="simNum"]').val().trim(),
+		 carNum=$('[name="carNum"]').val().trim(),
+		 phoneNum=$('[name="phoneNum"]').val().trim();
+	 
+	 	$.ajax({
+			type: "post",
+			url: "/mocentM/car_getCarInfoCount",
+			data: {simNum:simNum,carNum:carNum,phoneNum:phoneNum},
+			dataType: "json",
+			async: true,
+			success: function(result){
+				$("#hint").nextAll("tr").remove();
+				if(result && result[0]>0){
+					$('[name="pageTotal"]').val(result[0]);
+					$("#hint").hide();
+					if(result[0]>10){
+						//分页
+						$(".pager-div").show();
+						var pageIndex=$('[name="pageIndex"]').val().trim();
+						if(pageIndex == 1){
+							$(".previous a").addClass('cur_text');
+						}
+						dataInfo(simNum,carNum,phoneNum,pageIndex,10);
+					}else{
+						$(".pager-div").hide();
+						dataInfo(simNum,carNum,phoneNum);
+					}
+					
+				}else{
+					//没有数据
+					$("#hint").show();
+				}
+				
+			}
+		})
+		
+		function dataInfo(simNum,carNum,phoneNum,pageIndex,pageNum){
+			var data={};
+			if(pageIndex){
+				data={simNum:simNum,carNum:carNum,phoneNum:phoneNum,pageIndex:pageIndex,pageNum:pageNum}
+			}else{
+				data={simNum:simNum,carNum:carNum,phoneNum:phoneNum}
+			}
+			 $.ajax({
+			type: "post",
+			url: "/mocentM/car_getCarInfo",
+			data: data,
+			dataType: "json",
+			async: true,
+			success: function(result){
+				appenToHtml($("#info"),result);
+			}
+		 })	 
+		}
+		
+		
+	}
+	function appenToHtml(obj,data){
+	 var str=""
+		for(var i=0;i<data.length;i++){
+			//不在线
+			if(data[i][4]==1){
+				str+='<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>在线</td><td></td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>'.format(data[i][0] ||"",data[i][1] ||"",data[i][2] ||"",data[i][3] ||"",data[i][6] ||"",data[i][7] ||"",data[i][8] ||"",data[i][9] ||"");
+			}else{
+				str+='<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>不在线</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>'.format(data[i][0] ||"",data[i][1] ||"",data[i][2] ||"",data[i][3] ||"",getLocalTime(data[i][5]) ||"",data[i][6] ||"",data[i][7] ||"",data[i][8] ||"",data[i][9] ||"");
+			}
+			
+		}
+		obj.append(str);
+	}
+	function previous(){
+		
+	   var pageIndex= $('[name="pageIndex"]').val().trim(),
+	   		$previous=$(".previous a");
+	   		
+		if(pageIndex && pageIndex == 1){
+			$previous.addClass('cur_text');
+			return false;
+		}else{
+			$previous.removeClass('cur_text');
+		}
+		$('[name="pageIndex"]').val(parseInt(pageIndex)-1);
+		infomation();
+	}
+	function next(){
+		var pageIndex= $('[name="pageIndex"]').val().trim(),
+			total= $('[name="pageTotal"]').val().trim(),
+	   		$next=$(".next a"),
+	     	maxIndex=parseInt(total%10==0?(total/10):(total/10)+1);
+	     	if(pageIndex && pageIndex == maxIndex){
+	     		$next.addClass('cur_text');
+	     		return false;
+	     	}else{
+	     		$next.removeClass('cur_text');
+	     	}
+	     	$('[name="pageIndex"]').val(parseInt(pageIndex)+1);
+	     	infomation();
+	}
+	function getLocalTime(nS) {     
+       return new Date(parseInt(nS) * 1000).toLocaleString();
+     } 
+	
+</script>
+</head>
+
+<body>
+	<div class="center">
+		<div style="display: none;">
+			<a href="#">更新62</a>
+			<a href="#">更新72</a>
+		</div>
+		<div>
+			<div>
+				<div style="margin-top: 50px;margin-bottom: 20px;">
+					车机SIM卡号：<input type="text" name="simNum">
+					车牌号:<input type="text" name="carNum">
+					车主手机号:<input type="text" name="phoneNum">
+					<input type="submit" onclick="infomation();" value="search">
+				</div>
+				<div style="margin-top: 5px">
+					<table id="info" class="tableCenter" border="1">
+						<tr>
+							<td>车牌号</td>
+							<td>车机SIM卡号</td>
+							<td>车主姓名</td>
+							<td>手机号</td>
+							<td>状态</td>
+							<td>last_online_date</td>
+							<td>62版本号</td>
+							<td>72版本号</td>
+							<td>77版本号</td>
+							<td>高德版本号</td>
+						</tr>
+						<tr id="hint">
+							<td colspan="10">没有数据请搜索！</td>
+						</tr>
+						<tr>
+							
+						</tr>
+					</table>
+					<div class="container pager-div">
+						<input name="pageIndex" style="display: none" value="1">
+						<input name="pageTotal" style="display: none">
+						<ul class="pager">
+								    <li class="previous"><a href="#" onclick="previous();">&larr; Older</a></li>
+								    <li class="next"><a href="#" onclick="next();">Newer &rarr;</a></li>
+						</ul>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

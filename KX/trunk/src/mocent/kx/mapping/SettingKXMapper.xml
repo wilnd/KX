@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+  
+
+<mapper namespace="mocent.kx.dao.ISettingKXDao">   
+    <select id="findLookUp"  resultType="mocent.kx.entity.MocentLookUp">  
+       	SELECT
+			id         as id,
+			make_num   as makeNum,
+			send_num   as  sendNum
+		FROM
+			moc_lookup_item
+		WHERE
+		id = (SELECT max(id) id FROM moc_lookup_item)
+    </select>  
+    <update id="updateLookUp" parameterType="mocent.kx.entity.MocentLookUp">
+    	update moc_lookup_item set make_num=#{makeNum},send_num=#{sendNum} 
+    	where id=#{id}
+    </update>
+    
+    <select id="findCarVersCount" resultType="int">
+    	select count(1) from moc_car_ver
+    </select>
+      
+     <select id="findCarVers" resultType="mocent.kx.entity.MocentCar" parameterType="int">
+     	select id as id,
+     			car_verName  as carVerName,
+     			car_careateDate  as carCreateDate,
+     			car_createBy   as  carCreateBy,
+     			car_createByUserName  as carCreateUserName,
+     			car_state             as carState,
+     			imageSize_high        as imageSizeHigh,
+     			imageSize_width       as imageSizeWidth,
+     			row_num               as rowNum,
+     			line_num              as lineNum,
+     			title_num             as titleNum
+ 			from moc_car_ver
+ 			LIMIT  #{0}, #{1}
+     </select> 
+     
+     <insert id="addCarVer" parameterType="mocent.kx.entity.MocentCar">
+     	<selectKey resultType="int" order="AFTER" keyProperty="id">
+     		SELECT LAST_INSERT_ID() AS id
+     	</selectKey>
+     	INSERT INTO moc_car_ver (car_verName,car_createBy,car_createByUserName,car_careateDate,car_state,
+     			imageSize_high,imageSize_width,title_num,line_num,row_num)
+     	values(
+     		#{carVerName,jdbcType=VARCHAR},
+     		#{carCreateBy,jdbcType=NUMERIC},
+     		#{carCreateUserName,jdbcType=VARCHAR},
+     		#{carCreateDate,jdbcType=NUMERIC},
+     		#{carState,jdbcType=NUMERIC},
+     		#{imageSizeHigh,jdbcType=NUMERIC},
+     		#{imageSizeWidth,jdbcType=NUMERIC},
+     		#{titleNum,jdbcType=NUMERIC},
+     		#{lineNum,jdbcType=NUMERIC},
+     		#{rowNum,jdbcType=NUMERIC}
+     	)		
+     </insert>
+     
+     <update id="updateCarVer" parameterType="mocent.kx.entity.MocentCar">
+     	update moc_car_ver 
+	     	set car_verName=#{carVerName,jdbcType=VARCHAR},
+	     	car_careateDate=#{carCreateDate,jdbcType=NUMERIC},
+	     	car_createBy=#{carCreateBy,jdbcType=NUMERIC},
+	     	car_createByUserName=#{carCreateUserName,jdbcType=VARCHAR},
+	     	car_state=#{carState,jdbcType=NUMERIC},
+	     	imageSize_high=#{imageSizeHigh,jdbcType=NUMERIC},
+	     	imageSize_width=#{imageSizeWidth,jdbcType=NUMERIC},
+	     	row_num=#{rowNum,jdbcType=NUMERIC},
+	     	line_num=#{lineNum,jdbcType=NUMERIC},
+	     	title_num=#{titleNum,jdbcType=NUMERIC} 
+     	where id=#{id,jdbcType=NUMERIC}
+     </update>
+     
+     <select id="findCarVerById" resultType="mocent.kx.entity.MocentCar" parameterType="mocent.kx.entity.MocentCar">
+     	select    id as id,
+     			car_verName  as carVerName,
+     			car_careateDate  as carCreateDate,
+     			car_createBy   as  carCreateBy,
+     			car_createByUserName  as carCreateUserName,
+     			car_state             as carState,
+     			imageSize_high        as imageSizeHigh,
+     			imageSize_width       as imageSizeWidth,
+     			row_num               as rowNum,
+     			line_num              as lineNum,
+     			title_num             as titleNum
+ 			from moc_car_ver
+ 			where id=#{id,jdbcType=NUMERIC}
+     </select>
+</mapper>  

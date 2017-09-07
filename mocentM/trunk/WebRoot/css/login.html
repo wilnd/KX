@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<title>客服监控系统</title>
+<link rel="shortcut icon" href="images/icon.ico" type="image/x-icon" />
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/bootstrap.css"/>
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/jquery-ui.min.css" />
+<script type="text/javascript" src="../jsclient/jquery.min.js"></script>
+<script type="text/javascript" src="../jsclient/base.js"></script>
+<script type="text/javascript" src="../jsclient/bootstrap.min.js"></script>
+<script type="text/javascript" src="../jsclient/jquery-ui.js"></script>
+<script type="text/javascript" src="javascript/login.js"></script>
+<script type="text/javascript" src="../jsclient/jQuery.md5.js"></script>
+<style type="text/css">
+	body{
+		background-color: #E0E0E0;
+	}
+	
+	.login{
+		position: absolute;
+		width: 400px;
+		height: 400px;
+		border: 1px solid gray;
+		left: 50%;
+		top: 35%;
+		margin-left: -200px;
+		margin-top: -100px;
+		background-color: #FFFFFF;
+		border-radius: 4px;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		box-shadow: 10px 10px 5px #888888;
+	}
+	
+	.modify{
+		width: 100px;
+		font-size: 14px;
+		height: 34px;
+		font-weight: 0;
+		line-height: 34px;
+		text-align: right;
+		padding: 6px 12px;
+		text-decoration: none;
+		color: #000000;
+		font-family: 微软雅黑;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		border-radius: 4px;
+	}
+	
+	.modify:hover{
+		background:#E2E2E2
+	}
+</style>
+</head>
+<body>
+	<div id="divNavigation" style="">
+		<div id="divLoginArea" class="login">
+			<div style="height: 60px; line-height: 60px;background-color: #00A0A0;text-align: center">
+				<font size="6">摩森客服监控系统</font>
+			</div>
+			<div id="divUserName" class="input-group" style="margin: 50px 20px 0 20px">
+				<span class="input-group-addon" style="text-align:right; min-width: 90px">账号:</span>
+				<input class="form-control" type="text" id="loginname" name="loginname" placeholder="请输入您的登录账号" onblur=""/>
+			</div>
+			<div id="divUserNameInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+				<span style="color: red"></span>
+			</div> 
+			<div id="divPassword" class="input-group" style="margin: 0px 20px">
+				<span class="input-group-addon" style="text-align:right; min-width: 90px">密码:</span>
+				<input class="form-control" type="password" id="password" name="password" placeholder="请输入您的登录密码" onblur=""/>
+			</div>
+			<div id="divPasswordInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+				<span style="color: red"></span>
+			</div>
+			<div style="margin: 20px">
+				<a class="btn btn-primary" style="width: 100%" href="javascript:void(0)" onclick="login()">登 录</a>
+			</div>
+			<div style="margin-bottom: 20px; margin-right: 20px;text-align: right">
+				<a class="modify" href="javascript:void(0)" onclick="modifyPwd()">修改密码</a>
+			</div>
+		</div>
+	</div>
+	<div id="divModifyPwd" style="display: none">
+		<div class="input-group" style="margin-top: 5px;">
+			<span class="input-group-addon" style="text-align:right; min-width: 90px">账号:</span>
+			<input class="form-control" type="text" id="account" name="account" placeholder="请输入您的登录账号" onblur=""/>
+		</div>
+		<div class="input-group" style="margin-top: 5px;">
+			<span class="input-group-addon" style="text-align:right; min-width: 90px">旧密码:</span>
+			<input class="form-control" type="password" id="oldpwd" name="oldpwd" placeholder="请输入您原来的密码" onblur=""/>
+		</div>
+		<div class="input-group" style="margin-top: 5px;">
+			<span class="input-group-addon" style="text-align:right; min-width: 90px">新密码:</span>
+			<input class="form-control" type="password" id="newpwd" name="newpwd" placeholder="请输入新密码" onblur=""/>
+		</div>
+		<div class="input-group" style="margin-top: 5px;">
+			<span class="input-group-addon" style="text-align:right; min-width: 90px">确认密码:</span>
+			<input class="form-control" type="password" id="newpwd1" name="newpwd1" placeholder="请确认新密码" onblur=""/>
+		</div>
+		<div style="margin-top: 5px; text-align: right" id="divErrorMsg"></div>
+	</div>
+</body>
+</html>

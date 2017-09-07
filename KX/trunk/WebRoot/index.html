@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>快讯</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+      <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/zTreeStyle.css">
+      <script type="text/javascript" src="js/jquery.js"></script>
+      <script type="text/javascript" src="js/tree/jquery.ztree.core.js"></script>
+      <script type="text/javascript" src="js/tree/jquery.ztree.exedit.js"></script>
+      <script type="text/javascript" src="js/index.js"></script>
+  </head>
+  
+  <body>
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="nav-close"><i class="fa fa-times-circle"></i>
+            </div>
+            <div class="slimScrollDiv" style="position: relative; width: auto; height: 100%;">
+            	<div class="sidebar-collapse" >
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <span><img alt="image" class="img-circle" src="img/profile_small.jpg"></span>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                             	  <span class="block m-t-xs"><strong id="userName" class="font-bold">Beaut-zihan</strong></span>
+                                </span>
+                            </a>
+                        </div>
+                        </div>
+                    </li>
+                    <li id="setting" class="backLi">
+                        <a class="J_menuItem" href="html/setting.html"> <span class="nav-label">设置</span></a>
+                    </li>
+                    <li id="suspending" class="backLi">
+                        <a class="J_menuItem" href="html/suspending.html"> <span class="nav-label">待发送</span></a>
+                    </li>
+					<li class="backLi">
+                        <a class="J_menuItem" href="html/suspend.html"> <span class="nav-label">待处理</span></a>
+                    </li>
+                    <li id="sendKX" class="backLi">
+                        <a class="J_menuItem" href="html/sendKX.html"> <span class="nav-label">已发送</span></a>
+                    </li>
+                    <li id="createKX" class="backLi">
+                        <a class="J_menuItem" href="html/createKX.html"> <span class="nav-label">制作</span></a>
+                    </li>
+                    <li>
+                        <div class="zTreeDemoBackground left">
+							<ul id="treeDemo" class="ztree"></ul>
+						</div>
+						<input type="hidden" id="selectYearId" value="0">
+						<input type="hidden" id="selectMonthId" value="0">
+						<input type="hidden" id="selectDayId" value="0">
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="gray-bg dashbard-1" id="page-wrapper">
+       		 <div class="border-bottom">
+                <a href="#" onclick="loginOut();" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i> 退出</a>
+            </div>
+           <div class="J_mainContent" id="content-main">
+          		 <iframe frameborder="0" id="MocentMain" name="MocentMain" scrolling="auto" src="welcome.html"
+			        style="z-index: 0; width:100%; height: calc(100% - 140px); border-right: 0px; border-left: 0px;
+			        position: absolute; border-bottom: 0px;">
+			    </iframe>
+			    </div>
+    	</div>
+    </div>
+  </body>
+</html>

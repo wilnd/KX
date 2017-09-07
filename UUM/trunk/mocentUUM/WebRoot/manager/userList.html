@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户管理</title>
+<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/manager.css">
+<link rel="stylesheet" href="../css/bootstrap-select.css">
+
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/bootstrap-select.js"></script>
+<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../js/manager/userManager.js"></script>
+<style type="text/css">
+	.sbtn{
+		float:right;
+	}
+	
+	#usertype+.btn-group{width: 150px;}
+</style>
+</head>
+<body>
+<div class="container main">
+    <div class="row">
+        <!--左边-->
+        <div class="col left-column">
+            <div class="sidebar-box gallery-list">
+                <a target="_top" href="/mocentUUM/manager/userList.html" style="background-color: rgb(150, 185, 125); font-weight: bold; color: rgb(255, 255, 255);">
+                    用户管理	</a>
+                <a target="_top" href="/mocentUUM/manager/roleList.html">
+                    角色管理</a>
+                <a target="_top" href="/mocentUUM/manager/permissionList.html">
+                    权限管理	</a>
+            </div>
+        </div>
+        <!--右边-->
+         <div class="col middle-column">
+                <div class="article">
+                    <div class="article-body">
+                        <div>
+                        	
+                        	<div class="input-group">
+   								<input type="text" name="userName" class="form-control input-lg" onkeydown="keydown();"><span id="search" onclick="findUser();" class="input-group-addon btn btn-primary">搜索</span>
+							</div>
+							<button  type="button" class="btn btn-primary sbtn" onclick="deleteUser()">删除用户</button>
+							<button  type="button" class="btn btn-primary sbtn" data-toggle="modal" data-target="#updateUserModal"  >修改用户</button>
+							<button  type="button" class="btn btn-primary sbtn" data-toggle="modal" data-target="#addUserModal" >添加用户</button>
+							<!-- 下拉 -->
+							<div class="dropdown right sbtn">
+								<button type="button" class="btn dropdown-toggle" id="chooseWeb" 
+										data-toggle="dropdown">
+									选择web项目名
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+									<li  class="menu">
+										<a role="menuitem" tabindex="-1" onclick="drop(this)" href="#">----不选----</a>
+									</li>
+								</ul>
+							</div>
+                        </div>
+                        <div>
+                            <table id="userList" border="1" class="table table-bordered">
+                            <thead>
+								<tr>
+									<th style="width: 35px;"></th>
+									<th style="min-width: 70px;">用户名</th>
+									<th style="min-width: 80px;">角色</th>
+									<th style="min-width: 120px;">权限</th>
+									<th style="min-width: 60px;">web名</th>
+									<th>最后登录时间</th>
+								</tr>
+							</thead>
+                                <tr id="tip">
+                                    <td colspan="6">暂无数据！</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	
+	<!-- 添加用户Modal） -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">添加用户</h4>
+            </div>
+            <div class="modal-body">
+            	<div id="divUserName" class="input-group" style="margin: 20px 20px 0 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">账号:</span>
+					<input class="form-control" type="text" id="addUserName" name="addUserName" placeholder="请输入账号" onblur=""/>
+			   </div>
+            	<div id="divUserNameInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+				<span style="color: red"></span>
+				</div> 
+				<div id="divPassword" class="input-group" style="margin: 0px 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">密码:</span>
+					<input class="form-control" type="password" id="addUserPassword" name="addUserPassword" placeholder="请输入密码" onblur=""/>
+				</div>
+				<div id="divPasswordInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+					<span style="color: red"></span>
+				</div>
+				<div id="divPassword" class="input-group" style="margin: 0px 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">确认密码:</span>
+					<input class="form-control" type="password" id="addUserPassword2" name="addUserPassword2" placeholder="请输入确认密码" onblur=""/>
+				</div>
+				<div id="divPasswordInfo2" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+					<span style="color: red"></span>
+				</div>
+				
+				<div class="dropdown" style="min-width: 200px;margin: 0px 20px;">
+					<button type="button" class="btn dropdown-toggle" id="addUserChooseWeb" 
+							data-toggle="dropdown">选择web项目名
+						<span class="caret"></span>
+					</button>
+					<ul  role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
+					</ul>
+				</div>
+				<div class="form-group">
+				 <div id="chooseRole">
+				 	<span>选择角色：</span>
+                    <select id="usertype" name="usertype" class="selectpicker show-tick form-control" multiple data-live-search="false">
+                    </select>
+                </div>
+				</div>
+				
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="addUserClose" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="addUser();" class="btn btn-primary">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+	</div>
+	<!-- 更新 -->
+	<div class="modal fade" id="updateUserModal" tabindex="0" role="dialog" aria-labelledby="myUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myUpdateModalLabel">修改用户</h4>
+            </div>
+            <div class="modal-body">
+            	<div id="divUserName" class="input-group" style="margin: 20px 20px 0 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">账号:</span>
+					<input class="form-control" type="text" id="updateUserName" name="updateUserName" disabled placeholder="请输入账号" onblur=""/>
+			   </div>
+            	<div id="divUserNameInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+				<span style="color: red"></span>
+				</div> 
+				<div id="divPassword" class="input-group" style="margin: 0px 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">密码:</span>
+					<input class="form-control" type="password" id="updateUserPassword" name="updateUserPassword" placeholder="请输入密码" onblur=""/>
+				</div>
+				<div id="divPasswordInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+					<span style="color: red"></span>
+				</div>
+				<div id="divPassword" class="input-group" style="margin: 0px 20px">
+					<span class="input-group-addon" style="text-align:right; min-width: 90px">确认密码:</span>
+					<input class="form-control" type="password" id="updateUserPassword2" name="updateUserPassword2" placeholder="请确认密码" onblur=""/>
+				</div>
+				<div id="divPasswordInfo2" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+					<span style="color: red"></span>
+				</div>
+				
+				<div class="form-group">
+				<div id="chooseRole2">
+				 	<span>选择角色：</span>
+                    <select id="usertype2" name="usertype" class="selectpicker show-tick form-control" multiple data-live-search="false">
+                    </select>
+                </div>
+				</div>
+				
+				<div class="dropdown" style="min-width: 200px; display: none">
+					<button type="button" class="btn dropdown-toggle" id="updateUserChooseWeb" 
+							data-toggle="dropdown">选择web项目名
+						<span class="caret"></span>
+					</button>
+					<ul  role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
+					</ul>
+				</div>
+				<!-- 修改用户所属web，修改用户角色 -->
+				<div class="dropdown" style="display: none">
+					<button type="button" class="btn dropdown-toggle" id="updateUserChooseRole"
+							data-toggle="dropdown">选择角色
+						<span class="caret"></span>
+					</button>
+					<ul  role="menu" aria-labelledby="dropdownMenu1">
+					</ul>
+				</div>
+				
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="updateUserClose" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="updateUser();" class="btn btn-primary">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+	</div>
+</body>
+</html>

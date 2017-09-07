@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+   	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	<constant name="struts.devMode" value="false" />
+	<constant name="struts.action.extension" value="," />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<constant name="struts.multipart.maxSize" value="2147483648" />
+	
+	<package name="default" extends="struts-default" namespace="/">
+		
+	</package>
+	<package name="car" extends="struts-default" namespace="/">
+		<action name="loadOfflineCars" class="mocent.Monitor.Action.CarAction" method="LoadOfflineCars">
+		</action>
+		<action name="judgeLoginUser" class="mocent.Monitor.Action.CarAction" method="judgeLoginUser">
+		</action>
+		<action name="searchCarInfo" class="mocent.Monitor.Action.CarAction" method="SearchCarInfo">
+		</action>
+		<action name="regeoAddress" class="mocent.Monitor.Action.CarAction" method="RegeoAddress">
+		</action>
+		<action name="sendPoint" class="mocent.Monitor.Action.CarAction" method="SendPoint">
+		</action>
+		<action name="getDetailInfo" class="mocent.Monitor.Action.CarAction" method="GetDetailInfo">
+		</action>
+		<action name="car_*" class="mocent.Monitor.Action.CarAction" method="{1}">
+		</action>
+		<action name="onWindowsClosed" class="mocent.Monitor.Action.CarAction" method="OnWindowsClosed">
+		</action>
+		<action name="checkSocketStatus" class="mocent.Monitor.Action.CarAction" method="CheckSocketStatus">
+		</action>
+	</package>
+	<package name="customer" extends="struts-default" namespace="/">
+		<action name="login" class="mocent.Monitor.Action.CustomerAction" method="Login">
+		</action>
+		<action name="getCustomerInfo" class="mocent.Monitor.Action.CustomerAction" method="GetCustomerInfo">
+		</action>
+		<action name="getCustomerInfoById" class="mocent.Monitor.Action.CustomerAction" method="getCustomerInfoById">
+		</action>
+		<action name="generateLoginSeq" class="mocent.Monitor.Action.CustomerAction" method="GenerateLoginSeq">
+		</action>
+		<action name="loadCallService" class="mocent.Monitor.Action.CustomerAction" method="LoadCallService">
+		</action>
+		<action name="lockCarUser" class="mocent.Monitor.Action.CustomerAction" method="lockCarUser">
+		</action>
+		<action name="cancelTerWarn" class="mocent.Monitor.Action.CustomerAction" method="CancelTerWarn">
+		</action>
+		<action name="modifyUserPwd" class="mocent.Monitor.Action.CustomerAction" method="modifyUserPwd">
+		</action>
+	</package>
+	<package name="owner" extends="struts-default" namespace="/">
+		<action name="getOwnerInfo" class="mocent.Monitor.Action.OwnerAction" method="GetOwnerInfo">
+		</action>
+	</package>
+</struts>

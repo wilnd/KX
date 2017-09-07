@@ -1,0 +1,677 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width"/>
+<title>客服监控</title>
+<link rel="shortcut icon" href="images/icon.ico" type="image/x-icon" />
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/bootstrap.css"/>
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/bsgrid.all.min.css"/>
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/grid_bootstrap.min.css"/>
+<link type="text/css" rel="stylesheet" href="../jsclient/baseCss/jquery-ui.min.css" />
+<link rel="stylesheet" href="style/map.css"/>
+<script type="text/javascript" src="../jsclient/jquery.min.js"></script>
+<script type="text/javascript" src="../jsclient/bsgrid.all.min.js"></script>
+<script type="text/javascript" src="../jsclient/grid.zh-CN.min.js"></script>
+<script type="text/javascript" src="../jsclient/bootstrap.min.js"></script>
+<script type="text/javascript" src="../jsclient/bootstrap-contextmenu.js"></script>
+<script type="text/javascript" src="../jsclient/jquery-form.js"></script>
+<script type="text/javascript" src="../jsclient/jquery-ui.js"></script>
+<script type="text/javascript" src="../jsclient/base.js"></script>
+<script type="text/javascript" src="../jsclient/layoutit.js"></script>
+<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=dbf1bd88e2366b1c76b5513bfeac7fc8&plugin=AMap.Geocoder"></script>
+<script type="text/javascript" src="javascript/monitor.js"></script>
+<script type="text/javascript" src="javascript/map.js"></script>
+<style type="text/css">
+	body {
+	    font-size: 12px;
+	}
+	#tip {
+	    background-color: #ddf;
+	    color: #333;
+	    border: 1px solid silver;
+	    box-shadow: 3px 4px 3px 0px silver;
+	    position: absolute;
+	    top: 55px;
+	    right: 10px;
+	    border-radius: 5px;
+	    overflow: hidden;
+	    line-height: 20px;
+	}
+	#tip2 {
+	    background-color: #ddf;
+	    color: #333;
+	    border: 1px solid silver;
+	    box-shadow: 3px 4px 3px 0px silver;
+	    position: absolute;
+	    top: 100px;
+	    right: 10px;
+	    border-radius: 5px;
+	    overflow: hidden;
+	    line-height: 20px;
+	    padding-left: 10px;
+   		 padding-right: 10px;
+	}
+	#tip input[type="text"],#tip2 input[type="text"] {
+	    height: 30px;
+	    border: 0;
+	    padding-left: 5px;
+	    width: 280px;
+	    border-radius: 3px;
+	    outline: none;
+	}
+	#searchURL{
+		behavior:url(#default#savehistory);
+	}
+	.floatLocation{
+		float: right;
+		font-size: 14px;
+	}
+	.showOrHide{
+		text-align:center;
+	    width: 100%;
+		cursor: pointer;
+	    text-decoration: underline;
+	    height: 36px;
+	    line-height: 36px;
+	    border-bottom: 1px solid gray;
+	    border-top: 1px solid gray;
+	}
+	.dropdown-menu > li > a {  cursor: pointer;}
+
+</style>
+<script type="text/javascript">
+ 	var windowsArr = [];
+ 	
+    var gPos = {
+    	lat: "",
+    	lon: "",
+    	reset: function(){
+    		this.lat = "";
+    		this.lon = "";
+    	}
+    }
+    
+    //全局的标记点，地图
+    var gOwnerMaker,gCircle,gMapObj;
+    var amapAdcode = {},isAutoPlace=false;
+    var gInterval,markerIcon=0, markers=new Array(),selectCity,placeSearch;
+    var inputObj,placeSearch1;
+    var defaultProvince,defaultCity;
+    
+	$(document).ready(function(){
+		Layoutit("#divPageFrame", {hLayout: [300, {vLayout: [50, "auto"]}]});
+		
+		if(!mocent.application.userInfo.userId){
+			location.href='login.html';
+			return false;
+		}
+		
+		//初始化地图
+		initialize();
+		checkSocket();
+		judgeLoginUser();
+		
+		//定时任务
+		gInterval = setInterval("loadServerList()", 2000);
+		
+		$("#showMoreInfo").click(function(){
+			var $moreInfo=$("#showMoreInfo"),
+			play=$moreInfo.attr('display');
+			if(play && play=='hide'){
+				$moreInfo.attr('display','show');
+				$moreInfo.nextAll('div').show();
+				$moreInfo.text('隐藏版本信息');
+			}else{
+				$moreInfo.attr('display','hide');
+				$moreInfo.nextAll('div').hide();
+				$moreInfo.text('展示版本信息');
+			}
+		})
+		$("#tip2").html("");
+		$("#txtKeyWord").on("keydown",function(obj){keyDownSearch(obj)});
+	});
+	function setSearchLocation(provinceName,cityName){
+		if(provinceName && cityName){
+			var provinceNum = $("#province").find("option").length; //省份总个数
+			for(var i=1; i<provinceNum; i++){
+				var province = $("#province").find("option")[i].text; //省名字
+				if(province == provinceName){
+					var provinceCode = $("#province").find("option")[i].value; //省code
+					$("#province").val(provinceCode);
+					amapAdcode.createCity(provinceCode)
+					setTimeout(function(){
+						var cityNum = $("#city").find("option").length; //城市个数
+						if(cityNum != 0){
+							for(var k=1; k<cityNum; k++){
+								var city = $("#city").find("option")[k].text; //城市名称
+								if(city == cityName){
+									var cityCode = $("#city").find("option")[k].value; //城市code
+									$("#city").val(cityCode);
+									amapAdcode.createDistrict(cityCode);
+									return;
+								}
+							}
+						}
+					},500)
+				}
+			}
+		}
+	}
+	//加载城市，输入提示，poi搜索插件
+	function initKeyWork1(keyWord){ //第一个文本框
+    		var citysearch = new AMap.CitySearch();
+			citysearch.getLocalCity(); //获取城市
+			AMap.event.addListener(citysearch, "complete", function(result){
+					var autoOptions={};
+						$("#tip").html("");
+						$("#tip").html('<input type="text" id="txtKeyWord" name="txtKeyWord" placeholder="请输入检索关键字"/>');
+						var autoOptions = {
+							city:result.city,
+						    input: "txtKeyWord"
+			    		}
+			    		var city=$("#city").val()!="--请选择--" ? $("#city").val() :"";  
+					 
+						 //确定范围
+						if(city){
+							autoOptions.city=city;
+							result.city=city;
+						}
+						selectCity=result.city;
+						gMapObj.setBounds(result.bounds);
+			    		$("#txtKeyWord").on("keydown",function(obj){keyDownSearch(obj)});
+			    		var autocomplete = new AMap.Autocomplete(autoOptions);
+			    		if(!placeSearch1){
+						   	  placeSearch1 = new AMap.PlaceSearch({
+						        map: gMapObj,
+				            	pageIndex:1,
+						    });  //构造地点查询类
+			    		}
+					    	
+					   	AMap.event.addListener(autocomplete, "select", function(ret){
+					    	if($("#screenSearchId").is(":checked")) { //判断是否被选中checkBox
+						    var bounds = gMapObj.getBounds(); //获取可视范围
+						    	placeSearch1.searchInBounds(ret.poi.name ,bounds, function(status,data){
+						    		if(status=="no_data"){
+							    		alert("当前区域没有该位置!");
+							    		return;
+							    	}
+						    	});
+						    		gMapObj.clearLimitBounds(); //清除旧屏幕范围
+						    		//gMapObj.setLimitBounds(bounds); //设置地图不可拖动
+							}else{
+								gMapObj.clearLimitBounds();
+								placeSearch1.setCity(selectCity);
+							    placeSearch1.search(ret.poi.name); //关键字查询查询
+							}
+							$("#screenSearchId").prop("checked",'checked');
+							if(!$("#tip2").html()){//初始化第二个输入框
+								$($(".amap-sug-result")[1]).remove();
+								initCity("txtKeyWord2");
+							}
+					    });
+			})
+    	}
+	//加载城市，输入提示，poi搜索插件
+	function initCity(keyWord){ //第二个文本框
+    		var citysearch = new AMap.CitySearch();
+			citysearch.getLocalCity(); //获取城市
+			AMap.event.addListener(citysearch, "complete", function(result){
+					var autoOptions={};
+						var autoOptions = {
+							city:result.city,
+						    input: "txtKeyWord2"
+			    		}
+			    		var city=$("#city").val()!="--请选择--" ? $("#city").val() :"";  
+					 
+						 //确定范围
+						if(city){
+							autoOptions.city=city;
+							result.city=city;
+						}
+						selectCity=result.city;
+					 //初始化第二个输入  跟第一个类似功能
+					if(keyWord){
+						$("#tip2").html("");
+						$("#tip2").html('<input type="text" id="txtKeyWord2" name="txtKeyWord2" placeholder="请输入检索关键字"/>');
+						gMapObj.setBounds(result.bounds);
+			    		$("#txtKeyWord2").on("keydown",function(obj){keyDownSearch(obj)});
+			    		document.getElementById('txtKeyWord2').focus();
+			    		
+			    		var autocomplete = new AMap.Autocomplete(autoOptions);
+			    		if(!placeSearch){
+						   	  placeSearch = new AMap.PlaceSearch({
+						        map: gMapObj,
+				            	pageIndex:1,
+						    });  //构造地点查询类
+			    		}
+					    	
+					   	AMap.event.addListener(autocomplete, "select", function(ret){
+					    	if($("#screenSearchId").is(":checked")) { //判断是否被选中checkBox
+						    var bounds = gMapObj.getBounds(); //获取可视范围
+						    	placeSearch.searchInBounds(ret.poi.name ,bounds, function(status,data){
+						    	
+						    		if(status=="no_data"){
+							    		alert("当前区域没有该位置!");
+							    		return;
+							    	}
+						    	});
+						    		gMapObj.clearLimitBounds(); //清除旧屏幕范围
+						    		//gMapObj.setLimitBounds(bounds); //设置地图不可拖动
+							}else{
+								
+								gMapObj.clearLimitBounds();
+							    placeSearch.search(ret.poi.name); //关键字查询查询
+							}
+							
+					    });
+					}
+			})
+    	}
+	//初始化
+	function initialize()
+	{
+		var marker;
+		gMapObj = new AMap.Map("mapContainer", {
+			 resizeEnable: false
+		});
+    	
+    	
+    	gMapObj.plugin("AMap.DistrictSearch",function (){
+    		
+		    amapAdcode._district = new AMap.DistrictSearch({//高德行政区划查询插件实例
+		        subdistrict:1,   //返回下一级行政区
+		        showbiz:false
+		    });
+		    		    
+		    amapAdcode.createSelectList = function(selectId, list) {//生成下拉列表
+		       if(selectId !='district'){
+					var selectList = document.getElementById(selectId);
+			        selectList.innerHTML = '';
+			        selectList.add(new Option('--请选择--'));
+			        for (var i = 0, l = list.length, option; i < l; i++) {
+			            option = new Option(list[i].name);
+			            option.setAttribute("value", list[i].adcode)
+			            selectList.add(option);
+			        }
+			   	 }
+		     }
+		    amapAdcode.search = function(adcodeLevel, keyword, selectId) {//查询行政区划列表并生成相应的下拉列表
+		        var me = this;
+		        if (adcodeLevel == 'city') {//第三级时查询边界点
+		            this._district.setExtensions('all');
+		        } else {
+		            this._district.setExtensions('base');
+		        }
+		        this._district.setLevel(adcodeLevel); //行政区级别
+		        this._district.search(keyword, function(status, result) {//注意，api返回的格式不统一，在下面用三个条件分别处理
+		            var districtData = result.districtList[0];
+		            if (districtData.districtList) {
+		                me.createSelectList(selectId, districtData.districtList);
+		            } else if (districtData.districts) {
+		                me.createSelectList(selectId, districtData.districts);
+		            } else {
+		            	var temp = document.getElementById(selectId);
+		            	if(temp){
+		            		temp.innerHTML = ''
+		            	}
+		            }
+		           if(isAutoPlace){
+		            	gMapObj.setCenter(districtData.center);
+		            }
+		        });
+		    }
+				    amapAdcode.createProvince = function() {//创建省列表
+				        this.search('country', '中国', 'province');
+				        
+				    }
+				    amapAdcode.createCity = function(provinceAdcode) {//创建市列表
+				   		isAutoPlace=true; //初始化市，在选择省的时候
+				   		$("#screenSearchId").prop("checked",''); //清除选中样式
+				   		enptyMap();
+				   		gMapObj.clearMap();
+				   		gMapObj.clearLimitBounds(); //选择省的时候表示要切换地区，如果在此操作之前是屏幕内搜索，清除屏幕限制区域
+				        this.search('province', provinceAdcode, 'city');
+				    }
+				    amapAdcode.createDistrict = function(cityAdcode) {//创建区县列表
+				    debugger;
+			      		$($(".amap-sug-result")[0]).remove();
+			      		$("#screenSearchId").prop("checked",'');  //不选中复选框
+			      		enptyMap();
+				   		gMapObj.clearLimitBounds();
+			      		this.search('city', cityAdcode, 'district');
+			      		initKeyWork1(); //选择市的时候重新初始化地图，因为高德是以市定位为准的
+			    	}
+	    			amapAdcode.createProvince();
+	    });
+    	
+		gMapObj.plugin(["AMap.CitySearch","AMap.Autocomplete","AMap.PlaceSearch"], function(){
+			initKeyWork1();
+			    var leftClickEvent = AMap.event.addListener(gMapObj, "click", function(ret){
+					gPos.lat = ret.lnglat.getLat();
+					gPos.lon = ret.lnglat.getLng();
+					if (marker) {
+			            marker.setMap(null);
+			            marker = null;
+			        }
+					marker = new AMap.Marker({
+						icon: "images/markblue.png",
+				        position: [gPos.lon, gPos.lat],
+				        draggable: false,
+				    });
+	    			marker.setMap(gMapObj);
+	    			marker.on("rightclick", function(e){
+	    				contextMenu.open(gMapObj, e.lnglat);
+	    			});
+				});
+					
+			AMap.event.addListener(new AMap.CitySearch(), "error", function(result){
+				alert(result.info);
+			});
+		});
+		
+		
+        
+		    var leftClickEvent = AMap.event.addListener(gMapObj, "click", function(ret){
+				gPos.lat = ret.lnglat.getLat();
+				gPos.lon = ret.lnglat.getLng();
+				if (marker) {
+		            marker.setMap(null);
+		            marker = null;
+		        }
+				marker = new AMap.Marker({
+					icon: "images/markblue.png",
+			        position: [gPos.lon, gPos.lat],
+			        draggable: false,
+			    });
+    			marker.setMap(gMapObj);
+    			marker.on("rightclick", function(e){
+    				contextMenu.open(gMapObj, e.lnglat);
+    			});
+			}); 
+	    
+	    var contextMenu = new AMap.ContextMenu();  //创建右键菜单
+	    contextMenu.addItem("发送导航点", function() {
+	        sendPoint(0);
+	    }, 0);
+	    
+	    contextMenu.addItem("发送立即导航点", function(){
+	    	sendPoint(1);
+	    }, 1)
+	    
+	    contextMenu.addItem("取消标记", function() {
+	        if(marker)
+	        {
+	        	marker.setMap(null);
+	        	marker = null;
+	        }
+	    }, 2);
+	  //设置初始化的省市
+		gMapObj.getCity(function(data) {
+			defaultProvince = data['province'];
+			defaultCity = data['city'];
+   			setSearchLocation(defaultProvince, defaultCity);
+		});
+	}
+	
+</script>
+</head>
+<body>
+	<div id="divPageFrame">
+		<div id="divLeft">
+			<div style="height: 50%; border-bottom: 1px solid black; border-right: 1px solid black">
+				<div style="background: lightgray; height: 50px; line-height: 50px; text-align: center">
+					<b>服务队列</b>
+				</div>
+				<div id="divListHeader" style="height: 36px; line-height: 36px;text-align: center; border-bottom: 1px solid silver">
+					<div class="col-xs-6 col-sm-6" style="border-right: 1px solid silver">车辆</div>
+					<div class="col-xs-6 col-sm-6">告警类型</div>
+				</div>
+				<div id="divServiceList">
+					
+				</div>
+			</div>
+			<div style="height: 50%; border-right: 1px solid black;overflow: auto;">
+				<div style="background: lightgray; height: 50px; line-height: 50px; text-align: center">
+					<b>车辆详细信息</b>
+				</div>
+				<div>
+					<div style="height: 36px;line-height: 36px; display:none; border-bottom :1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">客服代号：</div>
+						<div class="col-xs-8 col-sm-8" id="divDealName" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">车主姓名：</div>
+						<div class="col-xs-8 col-sm-8" id="divOwnerName" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">车主电话：</div>
+						<div class="col-xs-8 col-sm-8" id="divPhoneNumber" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">车牌号码：</div>
+						<div class="col-xs-8 col-sm-8" id="divPlateNumber" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">车型：</div>
+						<div class="col-xs-8 col-sm-8" id="divCarModel" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">车身颜色：</div>
+						<div class="col-xs-8 col-sm-8" id="divCarColor" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">SIM卡号：</div>
+						<div class="col-xs-8 col-sm-8" id="divCarSim" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">注册日期：</div>
+						<div class="col-xs-8 col-sm-8" id="divRegisterTime" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">经销商：</div>
+						<div class="col-xs-8 col-sm-8" id="divDealer" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-top: 1px solid gray">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">渠道：</div>
+						<div class="col-xs-8 col-sm-8" id="divChannel" style="padding-left: 15px"></div>
+					</div>
+					<div class="showOrHide" display="hide" id="showMoreInfo">
+						<input type="text" style="display: none;" id="showCarInfo"/>
+					<div>展示所有版本信息</div></div>
+					<div style="height: 36px;line-height: 36px; border-bottom: 1px solid gray;display: none;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">62版本：</div>
+						<div class="col-xs-8 col-sm-8" id="divVer62" style="padding-left: 15px"></div>
+					</div> 
+					<div style="height: 36px;line-height: 36px; border-bottom: 1px solid gray; display: none;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">72版本：</div>
+						<div class="col-xs-8 col-sm-8" id="divVer72" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-bottom: 1px solid gray; display: none;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">77版本：</div>
+						<div class="col-xs-8 col-sm-8" id="divVer77" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-bottom: 1px solid gray; display: none;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">高德地图版本：</div>
+						<div class="col-xs-8 col-sm-8" id="divVerMap" style="padding-left: 15px"></div>
+					</div>
+					<div style="height: 36px;line-height: 36px; border-bottom: 1px solid gray; display: none;">
+						<div class="col-xs-4 col-sm-4" style="text-align: right; padding-right: 5px; border-right: 1px solid gray;">硬件版本：</div>
+						<div class="col-xs-8 col-sm-8" id="divUniqueCode" style="padding-left: 15px"></div>
+					</div>
+				</div>
+			</div>
+			<div>
+		    	<audio id="audioPlay">
+		    		<source src="audioes/alarm.wav" type="audio/wav"></source>
+		    	</audio>
+		    </div>
+		</div>
+		<div id="divRight">
+			<div style="border-bottom:1px solid black;text-align: right; margin-right: 10px; line-height: 50px;">
+				<div class="col-xs-1" style="text-align: right; padding-right: 5px">
+					省份：
+				</div>
+				<div class="col-xs-1" style="padding-top: 7px">
+					<select id='province' class="form-control" style="width: 150px" onchange='amapAdcode.createCity(this.value)'>
+				    </select>
+				</div>
+				<div class="col-xs-1" style="text-align: right; padding-right: 5px">
+					城市：
+				</div>
+				<div class="col-xs-1" style="padding-top: 7px">
+					<select id='city' class="form-control" style="width:150px;" onchange='amapAdcode.createDistrict(this.value)'>
+					</select>	
+				</div>
+				<div class="col-xs-1">
+					<input id="screenSearchId" type="checkbox" name="screenSearch"/>屏幕内搜索
+				</div>
+				<div class="col-xs-1" style="padding-top: 7px">
+					<button id="resetId" type="button" class="btn btn-default">恢复默认</button>
+				</div>
+			</div>
+			<div id="mapContainer">
+			</div>
+			<div>
+			    <div id="tip">
+			    	<input type="text" id="txtKeyWord"  name="txtKeyWord" placeholder="请输入检索关键字"/>
+			    </div>
+			    <div id="tip2">
+			   <!--  <input type="text" id="txtKeyWord2"  name="txtKeyWord2" placeholder="请输入关键字"/> -->
+			    </div>
+			</div>
+			<div  class="button-group">
+			    <div class="col-xs-3 col-sm-3 button">
+			    	<a href="javascript:void(0)" onclick="searchCar();"><img alt="车辆检索" title="车辆检索" src="images/search.png"/></a>
+			    </div>
+			    
+			    <div class="col-xs-1 col-sm-1" id="hidenA">&nbsp;</div>
+			    <div class="col-xs-1 col-sm-1" id="hidenB">&nbsp;</div>  
+			    <div class="col-xs-3 col-sm-3 button">
+			    	<a href="javascript:void(0)" onclick="loadOfflineCars()"><img alt="不在线列表" title="不在线列表" src="images/offline.png"/></a>
+			    </div>
+			    <div class="col-xs-1 col-sm-1" id="hidenC">&nbsp;</div>  
+			    <div class="col-xs-3 col-sm-3 button" id="uploadFile"  onclick="uploadOperate()"></div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="divExportExcel"  enctype="multipart/form-data" style="display: none">
+    	<input type="file" id="exportExcel" name="exportExcel"/>
+    	<input type="hidden" id="filePath" name="filePath"/>
+    	<p style="color:red">*请确保sim为数字格式，iccid为字符串格式</p>
+    </form>
+   
+	<div id="divSearchCar" style="display: none">
+		<div>
+			<div class="col-xs-5 col-sm-5" style="height: 36px;line-height: 36px;margin-top: 5px">
+				<div class="col-xs-3 col-sm-3" style="text-align: right; padding-right: 5px;">车牌号：</div>
+				<div class="col-xs-9 col-sm-9" id="divName" style="padding-right: 15px">
+					<input type="text" id="txtPlateNumber" class="form-control" name="txtPlateNumber" placeholder="车辆车牌号码"/>
+				</div>
+			</div>
+			<div class="col-xs-5 col-sm-5" style="height: 36px;line-height: 36px;margin-top: 5px">
+				<div class="col-xs-3 col-sm-3" style="text-align: right; padding-right: 5px;">SIM卡号：</div>
+				<div class="col-xs-9 col-sm-9" id="divName" style="padding-right: 15px">
+					<input type="text" id="txtSim" class="form-control" name="txtSim" placeholder="车机SIM卡号"/>
+				</div>
+			</div>
+			<div class="col-xs-2 col-sm-2" style="height: 36px;line-height: 36px;margin-top: 5px">
+				&nbsp;
+			</div>
+		</div>
+		<div>
+			<div class="col-xs-5 col-sm-5" style="height: 36px;line-height: 36px;margin-top: 5px">
+				<div class="col-xs-3 col-sm-3" style="text-align: right; padding-right: 5px;">手机号：</div>
+				<div class="col-xs-9 col-sm-9" id="divName" style="padding-right: 15px">
+					<input type="text" id="txtPhoneNumber" class="form-control" name="txtPhoneNumber" placeholder="当前车主手机号码"/>
+				</div>
+			</div>
+			<div class="col-xs-5 col-sm-5" style="height: 36px;line-height: 36px;margin-top: 5px">
+				<div class="col-xs-3 col-sm-3" style="text-align: right; padding-right: 5px;">ID：</div>
+				<div class="col-xs-9 col-sm-9" id="divName" style="padding-right: 15px">
+					<input type="text" id="txtCarId" class="form-control" name="txtCarId" placeholder="车辆流水ID"/>
+				</div>
+			</div>
+			<div class="col-xs-2 col-sm-2" style="height: 36px;line-height: 36px;margin-top: 5px">
+				<button type="button" class="btn btn-search" onclick="searchCarInfo()">查 询</button>
+			</div>
+		</div>
+		<div id="divCarInfo" style="display: none;">
+			<div id="divCarHeader" style="height: 36px; line-height: 36px; text-align: center;">
+    			<div class="col-xs-3 col-sm-3">
+    				<b>车牌号码</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>车主姓名</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>手机号码</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>SIM卡号</b>
+    			</div>
+    		</div>
+    		<div id="divCarList" >
+    			
+    		</div>
+    		<div  style="height: 36px; line-height: 36px; text-align: center;">
+    			<div class="col-xs-3 col-sm-3">
+    				<b>62版本</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>72版本</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>77版本</b>
+    			</div>
+    			<div class="col-xs-3 col-sm-3">
+    				<b>高德版本</b>
+    			</div>
+    		</div>
+    		<div id="divCarVer" style=" text-align: center;" >
+    		</div>
+    		<div style="height: 36px; line-height: 36px; text-align: center;">
+    			<div class="col-xs-4 col-sm-4">
+    				<b>硬件版本</b>
+    			</div>
+    			<div class="col-xs-4 col-sm-4">
+    				<b>是否在线</b>
+    			</div>
+    			<div class="col-xs-4 col-sm-4">
+    				<b>最后登录时间</b>
+    			</div>
+    		</div>
+    		
+    		<div id="divCarVer1" style=" text-align: center;" ></div>
+    			
+		</div>
+	</div>
+	<div id="divOfflineList" style="display: none; margin-left: 5px; margin-top: 5px">
+		<table id="tabOfflineCarsList">
+			<tr>
+				<th w_index="plate_number" width="100px" align="center">车牌号码</th>
+				<th w_index="cur_owner_name" width="100px" align="center">车主姓名</th>
+				<th w_render="contact_number" width="100px" align="center">手机号码</th>
+				<th w_index="sim" width="100px" align="center">SIM卡号</th>
+			</tr>
+		</table>
+	</div>
+	<div id="divSendPoint" style="display: none">
+		<div style="height: 40px; line-height: 40px; margin-top: 5px">
+			<div class="col-xs-3 col-sm-3" style="text-align: right; padding-right: 5px;">导航点名称：</div>
+			<div class="col-xs-9 col-sm-9" id="divName" style="padding-right: 15px">
+				<input type="text" id="txtAddrName" class="form-control" name="txtAddrName" placeholder="后台发送POI"/>
+			</div>
+		</div>
+	</div>
+	<div id="context-menu">
+     	<ul class="dropdown-menu" role="menu">
+     		 <li><a tabindex="-1">锁定</a></li>
+          <li><a tabindex="-1">结束</a></li>
+     	</ul>
+     </div>
+</body>
+</html>

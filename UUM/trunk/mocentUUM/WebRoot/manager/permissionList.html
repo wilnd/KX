@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>权限管理</title>
+<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="../css/manager.css">
+<link rel="stylesheet" href="../css/bsgrid.all.min.css">
+ 
+
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../js/bsgrid.all.min.js"></script>
+<script type="text/javascript" src="../js/manager/permissionManager.js"></script>
+<script type="text/javascript" src="../js/grid.zh-CN.min.js"></script>
+<script type="text/javascript" src="../js/jquery-form.js"></script>
+<style type="text/css">
+	#arrowhead{
+		border: 10px solid transparent;
+	    border-right: 20px solid #428bca;
+	    width: 0;
+	    height: 0px;
+	    position: absolute;
+	}
+	.funButton{
+		margin-left:627px;
+	}
+	.parentStyle{
+	    width: 90px;
+	    height: 34px;
+	    border-top-left-radius: 5px !important;
+	    border-bottom-left-radius: 5px !important;
+	    border: 1px solid #ccc ;
+    }
+</style>
+</head>
+<body>
+	<div class="container main">
+		<div class="row">
+			<!--左边-->
+			<div class="col left-column">
+				<div class="sidebar-box gallery-list">
+					<a target="_top" href="/mocentUUM/manager/userList.html"> 用户管理
+					</a> <a target="_top" href="/mocentUUM/manager/roleList.html">
+						角色管理</a> <a target="_top"
+						href="/mocentUUM/manager/permissionList.html"
+						style="background-color: rgb(150, 185, 125); font-weight: bold; color: rgb(255, 255, 255);">
+						权限管理 </a>
+				</div>
+			</div>
+   			<!--右边-->
+            <div class="col middle-column">
+                <div class="article">
+                    <div class="article-body">
+                        <div class="align">
+                        	<!-- <div class="input-group">
+                               <form id="searchParams">
+   								  <input type="text" name="roleName" onkeydown="keydown();" class="form-control input-lg">
+                                </form>
+                                <span class="input-group-addon btn btn-primary" onclick="doSearch();">搜索</span>
+							</div> -->
+							<button  type="button" class="btn btn-primary funButton" data-toggle="modal" data-target="#addPermissionModal" >添加权限</button>
+							<button  type="button" class="btn btn-primary" data-toggle="modal" data-target="#deletePermissionModal" >删除权限</button>
+							<div class="dropdown right">
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+									<li  class="menu">
+										<a role="menuitem" tabindex="-1" onclick="drop(this)" href="#">----不选----</a>
+									</li>
+								</ul>
+							</div>
+                        </div>
+                        <div>
+                            <table id="searchTable" border="1" class="table table-bordered">
+                                    <tr>
+                                        <!-- <th w_check="true"  w_index="id" width="5%;"></th> -->
+                                         <th w_render="operate" width="15%;"><div id="arrowhead" onclick="thePrevious()"></div><b><span id="parentMenu"></span></b></th>
+                                        <th w_index="childrenName" w_align="left" width="15%;"><b><span id="childrenMenu"></span></b></th>
+                                    </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+ </div>
+ 
+ <!-- 增加权限模态框 -->
+ <div class="modal fade" id="addPermissionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myModalLabel">添加权限</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="divPermissionName" class="input-group" style="margin: 20px 20px 0 20px">
+							<span class="input-group-addon" style="text-align:right; min-width: 90px">权限名:</span>
+							<input class="form-control" type="text" id="addPermissionName" name="addPermissionName" placeholder="请输入权限名" onblur="">
+					    </div>
+					    <div id="divPermissionNameInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+							<span style="color: red"></span>
+						</div> 
+					    <div id="divPermission" class="input-group" style="margin: 20px 20px 0 20px">
+							<span class="input-group-addon" style="text-align:right; min-width: 90px">权限描述:</span>
+							<input class="form-control" type="text" id="addPermissionDesc" name="addPermissionDesc" placeholder="请输入权限描述" onblur="">
+					    </div>
+					     <div id="divPermissionDescInfo" style="height: 30px; line-height: 30px; text-align: right; margin-right: 20px">
+							<span style="color: red"></span>
+						</div>
+						<div id="divParentId" class="input-group" style="margin: 20px 20px 0 20px">
+							<span id="parentList" class="input-group-addon" border="1px solid #000" style="text-align:right; width:90px; height:34px;border:1px solid #ccc;border-top-left-radius: 5px;border-bottom-left-radius: 5px">父权限:</span>
+								
+								&nbsp;<button type="button" class="btn dropdown-toggle" id="addPermissionChooseParent" data-toggle="dropdown">-请选择-
+									<span class="caret"></span>
+								</button>
+								
+								<ul  class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
+									
+								</ul>
+					    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="addRoleClose" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="addPermission();	" class="btn btn-primary">提交更改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+	<!-- 删除权限模态框 -->
+	<div class="modal fade" id="deletePermissionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myModalLabel">删除权限</h4>
+                    </div>
+                    <div class="modal-body">
+                    	<form id="deletePermissionForm">
+                    	<div style="margin-top: 20px; overflow: hidden">
+	                    	<div class="left">请勾选要删除的权限:</div>
+	                            <div class="left">
+	                                <table class="table" id="allPermisssion">
+	                                </table>
+	                            </div>
+	                        </div>
+	                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="deletePermissionClose" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" onclick="deletePermission();" class="btn btn-primary">确认删除</button>
+                    </div>
+                </div>
+             </div>
+        </div>
+	</div>
+</div>
+
+</body>
+</html>

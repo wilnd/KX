@@ -1,0 +1,4 @@
+uploadUrl=/var/download/mocentKX/
+newLine=\n
+cmdSuff=.sh
+iptcPath=/run/iptc

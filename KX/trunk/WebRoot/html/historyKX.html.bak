@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>historyKX.html</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+	
+	<style type="text/css">
+		.col-sm-5 {padding-top: 11px;}
+	</style>
+	<script type="text/javascript">
+		$(function(){
+			var kxId=$(window.parent.document).find('iframe').attr('data_id');
+			if(kxId){
+				$.ajax({
+					type: "get",
+					url: "/mocentKX/history/findKXById",
+					dataType: "json",
+					data:{kxId:kxId},
+					async: true,
+					success: function(ret){
+						if(ret && ret.kxObj){
+							if(ret.kxObj.kxState == 0){
+								$("#kxState").html('已保存');
+							}else if(ret.kxObj.kxState == 1){
+								$("#kxState").html('提交');
+							}else if(ret.kxObj.kxState == 2){
+								$("#kxState").html('未提交');
+							}else if(ret.kxObj.kxState == 3){
+								$("#kxState").html('采纳');
+							}else if(ret.kxObj.kxState == 4){
+								$("#kxState").html('未采纳');
+							}
+							$("#kxUrl").html(ret.kxObj.kxUrl);
+							$("#kxNum").html(ret.kxObj.kxNum);
+							if(ret.image){
+								$("#kxcarId").html(ret.image.kxTextUrl);
+								//"E:\\image\\2016\\11\\17\\1479378410232.jpg"
+								//2等于配置的路径
+								var imageUrl=ret.image.kxImageUrl.substr(13);
+								$("#kximage").html('<img alt="图片" src="/upload'+imageUrl+'">');
+								
+							}
+							$("#kxtitle").html(ret.kxObj.kxTitle);
+							$("#kxBody").html(ret.kxObj.kxBody);
+						
+							$("#kxCreateBy").html(ret.kxObj.kxCreateByUserName);
+							$("#kxCreateDate").html(new Date(ret.kxObj.createDate*1000).toLocaleString());
+						}
+						
+					}
+				});
+			}
+		});
+	</script>
+  </head>
+  
+  <body class="iframeBody">
+   		<div class="form-horizontal">
+   			<div class="form-group">
+                 <label class="col-sm-3 control-label">快讯编号：</label>
+                 <div class="col-sm-5" id="kxNum">
+                     
+                 </div>
+              </div>
+   			<div class="form-group">
+                 <label class="col-sm-3 control-label">车典型号：</label>
+                 <div class="col-sm-5" id="kxcarId">
+                     
+                 </div>
+              </div>
+              <div class="form-group">
+                 <label class="col-sm-3 control-label">图片：</label>
+                 <div class="col-sm-5" id="kximage">
+                     	<!-- <img alt="图片" src="/upload/image/2016/11/16/1479289108763.jpg"> -->
+                 </div>
+              </div>
+              <div class="form-group">
+                 <label class="col-sm-3 control-label">标题：</label>
+                 <div class="col-sm-5" id="kxtitle">
+                     	
+                 </div>
+              </div>
+              <div class="form-group">
+                 <label class="col-sm-3 control-label">正文：</label>
+                 <div class="col-sm-5" id="kxBody">
+                     	
+                 </div>
+              </div>
+              <div class="form-group">
+                 <label class="col-sm-3 control-label">超链接：</label>
+                 <div class="col-sm-5" id="kxUrl">
+                     	
+                 </div>
+              </div>
+              
+              <div class="form-group">
+                 <label class="col-sm-3 control-label">状态：</label>
+                 <div class="col-sm-5" id="kxState">
+                     	
+                 </div>
+              </div>
+               <div class="form-group">
+                 <label class="col-sm-3 control-label">创建者：</label>
+                 <div class="col-sm-5" id="kxCreateBy">
+                     	
+                 </div>
+              </div>
+               <div class="form-group">
+                 <label class="col-sm-3 control-label">创建时间：</label>
+                 <div class="col-sm-5" id="kxCreateDate">
+                     	
+                 </div>
+              </div>
+              
+   		</div>
+  </body>
+</html>

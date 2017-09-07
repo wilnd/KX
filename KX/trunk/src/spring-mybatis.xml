@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"  
+    	xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"  
+   xmlns:aop="http://www.springframework.org/schema/aop" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+   					     http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-4.2.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
+    
+    
+     <!-- 自动扫描 -->  
+    <context:component-scan base-package="mocent.kx" >  
+		<!-- type表示注解，expression什么类型的注解，这里表示不扫描存controller注解的bean -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+     <!-- 引入配置文件 -->  
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+   
+    <!-- 创建一个数据源 destroy-method是当数据库连接不使用的时候,就把该连接重新放到数据池中,方便下次使用调用.-->
+   <bean id="MyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<!-- 设置JDBC驱动名称 -->
+		<property name="driverClassName" value="${db.driver}" />
+		<!-- 设置JDBC连接URL -->
+		<property name="url" value="${db.url}" />
+		<!-- 设置数据库用户名 -->
+		<property name="username" value="${db.username}" />
+		<!-- 设置数据库密码 -->
+		<property name="password" value="${db.password}" />
+		<!-- 设置连接池初始值 -->
+		<property name="initialSize" value="5" />
+		<!-- 设置连接池最大值 -->
+		<property name="maxActive" value="100" />
+		<!-- 设置连接池最小空闲值 -->
+		<property name="minIdle" value="20" />
+		<!-- 设置连接池最大空闲值 -->
+		<property name="maxIdle" value="50" />
+		
+		<property name="testOnBorrow" value="true"></property>
+  		<property name="testOnReturn" value="true"></property>
+  		<property name="testWhileIdle" value="true"></property>
+  		<property name="validationQuery" value="SELECT 1"></property>
+   		<property name="timeBetweenEvictionRunsMillis" value="30000"></property>
+   		<property name="minEvictableIdleTimeMillis" value="60000"></property>
+   		<property name="removeAbandoned" value="true"></property>
+   		<property name="removeAbandonedTimeout" value="60"></property>
+	</bean>
+	
+	 <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->  
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="MyDataSource" />  
+        <!-- 自动扫描mapping.xml文件 -->  
+        <property name="mapperLocations" value="classpath:mocent/kx/mapping/*.xml"></property>  
+    </bean>
+    
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="mocent.kx.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>  
+    </bean>
+    
+     <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->  
+    <bean id="transactionManager"  
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="MyDataSource" />  
+    </bean>  
+    
+    <!-- 事务管理 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 对insert,update,delete 开头的方法进行事务管理,只要有异常就回滚 -->
+			<tx:method name="add*" />
+			<tx:method name="update*" />
+			<tx:method name="delete*" />
+			<!-- select,count开头的方法,开启只读,提高数据库访问性能 -->
+			<tx:method name="find*" read-only="true"/>
+			<!-- 对其他方法 使用默认的事务管理 REQUIRED -->
+			<tx:method name="*" timeout="120"  propagation="REQUIRED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	
+		<!-- 事务 aop 配置 -->
+	<aop:config>
+		<aop:advisor pointcut="execution(* mocent.kx.service..*.*(..))" advice-ref="txAdvice" />
+	</aop:config>
+</beans>    

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+  
+
+<mapper namespace="mocent.kx.dao.ICreateKXDao">   
+   <select id="findValidCarVer" resultType="mocent.kx.entity.MocentCar">
+   		select id as id,
+     			car_verName  as carVerName,
+     			car_careateDate  as carCreateDate,
+     			car_createBy   as  carCreateBy,
+     			car_createByUserName  as carCreateUserName,
+     			car_state             as carState,
+     			imageSize_high        as imageSizeHigh,
+     			imageSize_width       as imageSizeWidth,
+     			row_num               as rowNum,
+     			line_num              as lineNum,
+     			title_num             as titleNum
+ 			from moc_car_ver
+ 			where car_state=1
+   </select>
+   <select id="findMocentKXCount" resultType="int" parameterType="long">
+   		SELECT COUNT(1) FROM moc_kx where kx_createDate BETWEEN #{0} and #{1}
+   </select>
+   
+   <insert id="addMocentKX" parameterType="mocent.kx.entity.MocentKX">
+   		<selectKey resultType="int" order="AFTER" keyProperty="id">
+     		SELECT LAST_INSERT_ID() AS id
+     	</selectKey>
+     	 INSERT INTO moc_kx(kx_num,kx_title,kx_body,kx_url,kx_timeliness,kx_state,kx_createBy,kx_createByUserName,kx_year,kx_month,kx_date,kx_createDate)
+     	 VALUES(
+     	 	#{kxNum,jdbcType=VARCHAR},
+     	 	#{kxTitle,jdbcType=VARCHAR},
+     	 	#{kxBody,jdbcType=VARCHAR},
+     	 	#{kxUrl,jdbcType=VARCHAR},
+     	 	#{kxTimeLiness,jdbcType=NUMERIC},
+     	 	#{kxState,jdbcType=NUMERIC},
+     	 	#{kxCreateBy,jdbcType=NUMERIC},
+     	 	#{kxCreateByUserName,jdbcType=VARCHAR},
+     	 	#{kxYear,jdbcType=NUMERIC},
+     	 	#{kxMonth,jdbcType=NUMERIC},
+     	 	#{kxDate,jdbcType=NUMERIC},
+     	 	#{createDate,jdbcType=VARCHAR}
+     	 )
+   </insert>
+   
+   <insert id="addImagePath" parameterType="java.util.List">
+		 SET FOREIGN_KEY_CHECKS = 0;
+   		INSERT INTO moc_image_path (kx_image_url,kx_text_url,kx_id,car_ver_id)	VALUES
+   			<foreach collection="list"  item="itm" separator=",">
+   				 (#{itm.kxImageUrl},#{itm.kxTextUrl},#{itm.kxId},#{itm.carVerId})
+   			</foreach>
+   			;
+   		SET FOREIGN_KEY_CHECKS = 1; 	
+   </insert>
+   <select id="findKXById" resultType="mocent.kx.entity.MocentKX" parameterType="int">
+   		SELECT id        as  id,
+				kx_num	  as   kxNum,
+				kx_title	as kxTitle,
+				kx_body		as  kxBody,
+				kx_url		as	kxUrl
+			from moc_kx
+ 			where id=#{0}
+   </select>
+  <select id="findImagePath" resultType="mocent.kx.entity.MocentImagePath" parameterType="int">
+  		SELECT id				as id,
+  				kx_image_url	as kxImageUrl,
+  				kx_text_url		as kxTextUrl,
+  				kx_id			as kxId,
+  				car_ver_id 		as  carVerId
+			from moc_image_path
+		where kx_id=#{0}
+  </select>
+  
+  <update id="updateMocentKX" parameterType="mocent.kx.entity.MocentKX">
+  		UPDATE moc_kx 
+  		SET kx_title=#{kxTitle},
+	  		kx_body=#{kxBody},
+	  		kx_url=#{kxUrl},
+	  		kx_timeliness=#{kxTimeLiness},
+	  		kx_state=#{kxState},
+	  		kx_year=#{kxYear},
+	  		kx_month=#{kxMonth},
+	  		kx_date=#{kxDate} 
+  		where id=#{id}
+  </update>
+  <delete id="delMocentPathByKXId" parameterType = "int">
+      DELETE FROM moc_image_path WHERE kx_id=#{0}
+  </delete>
+  
+  <delete id="delMocentPathById" parameterType="java.util.List">
+  		 DELETE FROM moc_image_path WHERE id in
+ 		 <foreach collection="list" item = "model" open="(" separator="," close=")">#{ model.id}  
+  
+    	</foreach>
+  </delete>
+</mapper>  

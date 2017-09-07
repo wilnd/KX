@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>=
+<meta charset="UTF-8">
+<title>角色管理</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../css/manager.css">
+     <link rel="stylesheet" href="../css/bsgrid.all.min.css">
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/manager/roleManager.js"></script>
+    <script type="text/javascript" src="../js/jquery-form.js"></script>
+     <script type="text/javascript" src="../js/bsgrid.all.min.js"></script>
+      <script type="text/javascript" src="../js/grid.zh-CN.min.js"></script>
+	<style type="text/css">
+		.funButton{
+			float:right;
+		}
+	</style>
+</head>
+<body>
+	<div class="container main">
+	    <div class="row">
+            <!--左边-->
+            <div class="col left-column">
+                <div class="sidebar-box gallery-list">
+                    <a target="_top" href="/mocentUUM/manager/userList.html">
+                        用户管理	</a>
+                    <a target="_top" href="/mocentUUM/manager/roleList.html" style="background-color: rgb(150, 185, 125); font-weight: bold; color: rgb(255, 255, 255);">
+                        角色管理</a>
+                    <a target="_top" href="/mocentUUM/manager/permissionList.html">
+                       权限管理	</a>
+                </div>
+            </div>
+            <!--右边-->
+            <div class="col middle-column">
+                <div class="article">
+                    <div class="article-body">
+                        <div>
+                        	<div class="input-group">
+                               <form id="searchParams">
+   								  <input type="text" name="roleName" onkeydown="keydown();" class="form-control input-lg">
+                                </form>
+                                <span class="input-group-addon btn btn-primary" onclick="doSearch();">搜索</span>
+							</div>
+							<button  type="button" class="btn btn-primary funButton" onclick="deleteRole()" >删除角色</button>
+							<button  type="button" class="btn btn-primary funButton" data-toggle="modal" data-target="#updateRoleModal"  >修改角色</button>
+							<button  type="button" class="btn btn-primary funButton" data-toggle="modal" data-target="#addRoleModal" >添加角色</button>
+							
+							<div class="dropdown right funButton">
+								<button type="button" class="btn dropdown-toggle" id="chooseWeb" 
+										data-toggle="dropdown">
+									选择web项目名
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1 ">
+									<li  class="menu">
+										<a role="menuitem" tabindex="-1" onclick="drop(this)" href="#">----不选----</a>
+									</li>
+								</ul>
+							</div>
+                        </div>
+                        <div>
+                            <table id="searchTable" border="1" class="table table-bordered">
+                                    <tr>
+                                        <th w_check="true"  w_index="id" width="5%;">  </th>
+                                        <th w_index="role" width="15%;"><b>角色名</b></th>
+                                        <th w_index="webName" w_align="left" width="15%;"><b>web名</b></th>
+                                        <th w_index="permission" w_align="left"><b>权限</b></th>
+                                    </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addRoleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myModalLabel">添加角色</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="myRoleForm">
+                        <div class="dropdown" style="min-width: 200px;">
+                            <button type="button" class="btn dropdown-toggle" onclick="changWeb(this)" id="addRoleChooseWeb"
+                                    data-toggle="dropdown">选择web项目名
+                                <span class="caret"></span>
+                            </button>
+                            <ul  role="menu" aria-labelledby="dropdownMenu1" style="display: none;position: absolute;background-color: floralwhite;">
+                            </ul>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                           <div> 
+						             请输入角色名：<input id="newRoleName" name="addRoleName" type="text"> <!-- onblur="checkRoleName(this)" -->
+                           </div>
+                            <div style="color: red;float: right;"></div>
+                        </div>
+                        <br/>
+                        <div id="newWebTextbox">
+                           <div> 如果没有对应的web：<span style="margin-left: 64px;">新增web项目：</span><input name="addWebName" type="text" onkeyup="hideWebMenu(this)"></div>
+                        </div>
+                        <div style="margin-top: 20px; overflow: hidden">
+                            <div class="left">请勾选对应的权限:</div>
+                            <div class="left">
+                                <table class="table" id="allPermisssion">
+                                </table>
+                            </div>
+                        </div>
+                            <input type="text" name="webName" style="display: none;">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="addRoleClose" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="addRole();" class="btn btn-primary">提交更改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="updateRoleModal" tabindex="-1" role="dialog" aria-labelledby="myUpdateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myUpdateModalLabel">修改角色</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="myUpdateRoleForm">
+                            <div class="dropdown" style="min-width: 200px;">
+                                <button type="button" class="btn dropdown-toggle" onclick="changWeb(this)" id="updateRoleChooseWeb"
+                                        data-toggle="dropdown">选择web项目名
+                                    <span class="caret"></span>
+                                </button>
+                                <ul  role="menu" aria-labelledby="dropdownMenu1" style="display: none;position: absolute;background-color: floralwhite;">
+                                </ul>
+                            </div>
+                            <div>
+                                <div> 请输入角色名：<input name="updateRoleName" type="text" onblur="checkRoleName(this)"></div>
+                                <div style="color: red;float: right;"></div>
+                            </div>
+                            <div style="margin-top: 20px; overflow: hidden">
+                                <div class="left">请勾选对应的权限:</div>
+                                <div class="left">
+                                    <table class="table" id="updatePermisssion">
+                                    </table>
+                                </div>
+                            </div>
+                            <input type="text" name="webName" style="display: none;">
+                            <input type="text" name="roleId" style="display: none;">
+                            <input type="text" name="uroleName" style="display: none;">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="updateRoleClose" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="updateRole();" class="btn btn-primary">提交更改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

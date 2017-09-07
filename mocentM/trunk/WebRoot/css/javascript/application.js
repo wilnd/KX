@@ -1,0 +1,1 @@
+mocent.registerNamespace("mocent.application");

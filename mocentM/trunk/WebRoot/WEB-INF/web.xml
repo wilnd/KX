@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>mocentM</display-name>
+  <filter>
+    <filter-name>structs2</filter-name>
+    <filter-class>
+  			org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
+  		</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>structs2</filter-name>
+    <url-pattern>
+  			/*
+  	</url-pattern>
+  </filter-mapping>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext*.xml,
+    			 classpath:memcached*.xml
+   	</param-value>
+  </context-param>
+  <filter>
+    <filter-name>encodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>utf-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+  </listener>
+  <listener>
+  	<listener-class>mocent.Monitor.Util.LoginAuth</listener-class>
+  </listener>
+  
+  <!-- 配置servlet上传 -->
+  	<servlet>
+		<servlet-name>UploadHandleServlet</servlet-name>
+		<servlet-class>mocent.Monitor.Util.UploadHandleServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>UploadHandleServlet</servlet-name>
+		<url-pattern>/servlet/UploadHandleServlet.servlet</url-pattern>
+	</servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.htm</welcome-file>
+  </welcome-file-list>
+  
+</web-app>

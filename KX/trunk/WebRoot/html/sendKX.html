@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>suspend.html</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" href="../css/bsgrid.all.min.css">
+      	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+      <script type="text/javascript" src="../js/jquery.js"></script>
+      <script type="text/javascript" src="../js/bsgrid.all.min.js"></script>
+      <script type="text/javascript" src="../js/grid.zh-CN.min.js"></script>
+      <script type="text/javascript" src="../js/sendKX.js"></script>
+  </head>
+  
+  <body class="iframeBody">
+   		<div>
+   			<h1>已发送的快讯</h1>
+   			 <div>
+                 <div style="top: 30px;right: 14%;position: absolute;">
+                     <button type="button" onclick="submitKX()" class="btn btn-primary funButton" >再次发送</button>
+                 </div>
+                 <table id="searchTable" border="1"  style="margin-bottom: 0px">
+                         <tr>
+                             <th w_check="true"  w_index="id" width="5%;">  </th>
+                             <th w_render="operate" width="12%;"><b>快讯编号</b></th>
+                             <th w_index="kxTitle" width="12%;"><b>标题</b></th>
+                             <th w_index="kxBody" width="15%;"><b>正文</b></th>
+                             <th w_index="kxUrl" width="15%;"><b>超链接</b></th>
+                             <th  w_render="showState"width="13%;"><b>状态</b></th>
+                             <th w_index="kxCreateByUserName" width="12%;"><b>创作者</b></th>
+                             <th w_render="showTime" width="16%;"><b>创建时间</b></th>
+                         </tr>
+                 </table>
+             </div>
+   		</div>
+  </body>
+</html>

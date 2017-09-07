@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>车典</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../js/validate/jquery.validate.min.js"></script>
+      <script type="text/javascript" src="../js/validate/messages_zh.min.js"></script>
+      <script type="text/javascript" src="../js/carVerInfo.js"></script>
+      <script type="text/javascript" src="../js/jquery-form.js"></script>
+      
+  </head>
+  
+  <body class="iframeBody">
+  	<div>
+  			<h1 style="text-align: center;" id="">新增车典型号</h1>
+  		 <form class="form-horizontal m-t" id="signupForm" novalidate="novalidate">
+  		 	<input type="hidden" id="carVerId" name="id">
+  		 	<input type="hidden" id="carCreateBy" name="carCreateBy">
+  		 	<input type="hidden" id="carCreateUserName" name="carCreateUserName">
+  			 <div class="form-group">
+                  <label class="col-sm-3 control-label">车典型号名称：</label>
+                  <div class="col-sm-5">
+                      <input id="carVerName" name="carVerName" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">状态 ：</label>
+                  <div class="col-sm-5">
+                      <input id="carState" name="carState" type="checkbox" value="1">有效
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">图片尺寸(宽)：</label>
+                  <div class="col-sm-5">
+                      <input id="imageSizeWidth" name="imageSizeWidth" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">图片尺寸(高)：</label>
+                  <div class="col-sm-5">
+                      <input id="imageSizeHigh" name="imageSizeHigh" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">标题字数：</label>
+                  <div class="col-sm-5">
+                      <input id="titleNum" name="titleNum"  class="form-control" type="text" aria-required="true" aria-invalid="true" class="error" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">正文行数：</label>
+                  <div class="col-sm-5">
+                      <input id="lineNum" name="lineNum" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">每行字数：</label>
+                  <div class="col-sm-5">
+                      <input id="rowNum" name="rowNum" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+                  </div>
+               </div>
+               <div class="form-group">
+                    <div class="col-sm-5 col-sm-offset-3">
+                    	<button class="btn btn-primary" type="reset">清空</button>
+                        <button class="btn btn-primary" type="submit">完成</button>
+                    </div>
+                 </div>
+  		 </form>
+  	</div>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>设置</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="../css/bsgrid.all.min.css">
+	<script type="text/javascript" src="../js/jquery.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../js/setting.js"></script>
+	<script type="text/javascript" src="../js/bsgrid.all.min.js"></script>
+	<script type="text/javascript" src="../js/grid.zh-CN.min.js"></script>
+  </head>
+  
+  <body class="iframeBody">
+   		<div>
+   			<form class="form-horizontal m-t" id="numForm">
+	   			<div class="form-group">
+	                 <label class="col-sm-3 control-label">每天制作数量</label>
+	                 <div class="col-sm-5">
+	                     <input id="makeNum" name="makeNum" class="form-control" type="text" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+	                 </div>
+	            </div>
+	            <div class="form-group">
+	                 <label class="col-sm-3 control-label">每天发送数量</label>
+	                 <div class="col-sm-5">
+	                     <input id="sendNum" name="sendNum" class="form-control" type="text" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')">
+	                 </div>
+	            </div>
+	            <input type="hidden" id="lookUpId">
+	             <div class="form-group">
+                      <div class="col-sm-5 col-sm-offset-3">
+                      	<button class="btn btn-primary" type="reset">清空</button>
+                          <button class="btn btn-primary" type="submit" onclick="numFormSub()">完成</button>
+                      </div>
+                 </div>
+                 
+                  <div>
+                  		<div>
+                  			车典数据列表：<a href="#" onclick="parent.mocent.replaceIframe('html/addCarVer.html')">新增</a>车典信息
+                  		</div>
+                        <table id="searchTable" border="1" class="table table-bordered" style="max-width: 1670px;margin-bottom: 0px">
+                                <tr>
+                                	 <th w_render="operate" width="15%;">车典名称</th>
+                                    <th w_index="carCreateUserName" width="15%;">创建者</th>
+                                    <th w_render="showState">状态</th>
+                                    <th w_render="showImageSize">图片尺寸</th>
+                                    <th w_index="titleNum">标题字数</th>
+                                    <th w_index="lineNum">正文行数</th>
+                                    <th w_index="rowNum">每行字数</th>
+                                    <th w_render="showTime">创建时间</th>
+                                </tr>
+                        </table>
+                  </div>
+            </form>
+   		</div>
+  </body>
+</html>

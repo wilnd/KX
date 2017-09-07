@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+  
+
+<mapper namespace="mocent.kx.dao.IHistoryKXDao">   
+   <select id="getNodes" resultType="mocent.kx.entity.TreeNode" parameterType="java.lang.Integer">
+   SELECT
+		DISTINCT	kx_year as id,
+		kx_year  as name
+	FROM moc_kx
+	where 1=1
+		<if test="userId != null and userId !=''">
+                 and kx_createBy=#{userId}
+           </if>
+           ORDER BY id
+   </select>
+	
+	<select id="getNodesByYear" resultType="mocent.kx.entity.TreeNode" parameterType="int"> 
+		SELECT
+			DISTINCT	kx_month as id,
+			kx_month  as name
+		FROM moc_kx
+		where kx_year =#{year}
+			 <if test="userId != null and userId !=''">
+                 and kx_createBy=#{userId}
+           </if>
+           ORDER BY id
+	</select>
+	
+	<select id="getNodesByYearAndMonth" resultType="mocent.kx.entity.TreeNode" parameterType="int">
+		SELECT
+			DISTINCT	kx_date as id,
+			kx_date  as name
+		FROM moc_kx
+		where kx_year =#{year}
+		and kx_month=#{month}
+		<if test="userId != null and userId !=''">
+                 and kx_createBy=#{userId}
+           </if>
+          ORDER BY id
+	</select>
+	
+	<select id="getNodesByYearAndNonthAndDay" resultType="mocent.kx.entity.TreeNode" parameterType="int">
+		SELECT
+			DISTINCT	id as id,
+			kx_num  as name,
+			0 as isParent
+		FROM moc_kx
+		where kx_year =#{year}
+			 and kx_month=#{month}
+			 and kx_date=#{day}
+			 <if test="userId != null and userId !=''">
+                 and kx_createBy=#{userId}
+           </if>
+           ORDER BY id
+	</select>
+	
+	<select id="findKXById" resultType="mocent.kx.entity.MocentKX" parameterType="int">
+		SELECT 	id        as  id,
+				kx_num	  as   kxNum,
+				kx_title	as kxTitle,
+				kx_body		as  kxBody,
+				kx_url		as	kxUrl,
+				kx_state	as  kxState,
+				kx_createByUserName  as kxCreateByUserName,
+				kx_createDate		as createDate
+			from moc_kx
+			where id=#{0}
+	</select>
+	
+	<select id="findKXImage" resultType="mocent.kx.entity.MocentImagePath" parameterType="int">
+		SELECT p.kx_image_url     	as  kxImageUrl,
+				GROUP_CONCAT(c.car_verName)  as   kxTextUrl
+		from moc_image_path p,moc_car_ver c
+			where p.car_ver_id=c.id
+				and kx_id=#{0}
+	</select>
+	
+	<select id="findKXByUserIdCount" resultType="int">
+		SELECT count(1)
+			from moc_kx
+			where 
+				 kx_state=#{state}
+				 <if test="userId != 0">
+					and	kx_createBy = #{userId}
+				</if>
+	</select>
+	<select id="findKXByUserId" resultType="mocent.kx.entity.MocentKX" parameterType="int">
+			SELECT id        as  id,
+				kx_num	  as   kxNum,
+				kx_title	as kxTitle,
+				kx_body		as  kxBody,
+				kx_url		as	kxUrl,
+				kx_state	as  kxState,
+				kx_createByUserName  as kxCreateByUserName,
+				kx_createDate		as createDate
+			from moc_kx
+			where 
+				 kx_state=#{state}
+				  <if test="userId != 0">
+					and	kx_createBy = #{userId}
+				</if>
+				order BY id desc
+				limit #{startLimt},#{pageSize}
+	</select>
+	
+	<update id="updateKXState" parameterType="java.util.List">
+		update moc_kx set kx_state=#{state} where id in
+		<foreach collection="list" item = "model" open="(" separator="," close=")">#{model} 
+    	</foreach>
+	</update>
+	
+	<delete id="delAllInfoKXId" parameterType="java.util.List">
+		DELETE  FROM moc_image_path WHERE kx_id in 
+		<foreach collection="list" item = "model" open="(" separator="," close=")">#{model} 
+    	</foreach>
+    	;
+    	DELETE  FROM moc_kx WHERE id in 
+    	<foreach collection="list" item = "model" open="(" separator="," close=")">#{model} 
+    	</foreach>
+	</delete>
+	
+	<insert id="addRecord" parameterType="java.util.List">
+     	 INSERT INTO moc_record(kxid,userId,`desc`,createDate)  VALUES
+     	 <foreach collection="list"  item="itm" separator=",">
+   			(
+     	 	#{itm.kxId,jdbcType=NUMERIC},
+     	 	#{itm.userId,jdbcType=NUMERIC},
+     	 	#{itm.desc,jdbcType=VARCHAR},
+     	 	#{itm.createDate,jdbcType=VARCHAR}
+     		 )
+   		</foreach>
+     	
+	</insert>
+</mapper>  

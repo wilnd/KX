@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+						http://www.springframework.org/schema/mvc
+						http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-4.2.xsd
+						">
+	
+	<!-- 表示启用注解扫描 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<!-- 打开静态资源文件 -->
+	<mvc:default-servlet-handler/>
+	
+	<context:component-scan base-package="mocent.uum.controller">
+        <!-- 扫描@Controller表示的bean -->
+   		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <!-- 配置拦截器，拦截html请求，主要是用于验证admin登录的安全性 -->
+    <mvc:interceptors>
+    	<mvc:interceptor>
+    		<mvc:mapping path="/manager/*.html"/>
+    		<bean class="mocent.uum.util.RequestInterceptor">
+    		</bean>
+    	</mvc:interceptor>
+    </mvc:interceptors>
+    
+</beans>
